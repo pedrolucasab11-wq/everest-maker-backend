@@ -58,6 +58,8 @@ async function initDB() {
         category TEXT NOT NULL DEFAULT '', value REAL NOT NULL DEFAULT 0,
         status TEXT NOT NULL DEFAULT 'negociando', notes TEXT,
         budget_item_id TEXT REFERENCES budget_items(id) ON DELETE SET NULL,
+        rating_price INTEGER, rating_trust INTEGER,
+        rating_quality INTEGER, rating_service INTEGER,
         created_at TEXT NOT NULL DEFAULT NOW()
       );
       CREATE TABLE IF NOT EXISTS appointments (
@@ -76,6 +78,15 @@ async function initDB() {
         created_at TEXT NOT NULL DEFAULT NOW()
       );
     `);
+
+    // Migration para proposals caso as colunas de rating não existam
+    await client.query(`
+      ALTER TABLE proposals ADD COLUMN IF NOT EXISTS rating_price INTEGER;
+      ALTER TABLE proposals ADD COLUMN IF NOT EXISTS rating_trust INTEGER;
+      ALTER TABLE proposals ADD COLUMN IF NOT EXISTS rating_quality INTEGER;
+      ALTER TABLE proposals ADD COLUMN IF NOT EXISTS rating_service INTEGER;
+    `);
+
     console.log("Tabelas PostgreSQL prontas.");
   } finally {
     client.release();
